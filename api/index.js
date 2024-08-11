@@ -18,7 +18,11 @@ app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(cookieParser());
 
 // connecting to database...
-mongoose.connect("mongodb://localhost:27017/ProjectManager");
+// mongoose.connect("mongodb://localhost:27017/ProjectManager");
+const connectDb = async () => {
+    await mongoose.connect("mongodb+srv://vishvamitrakumarsingh:vishu2000@cluster0.mp4pi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(() => console.log("Db is connected!"));
+};
+connectDb();
 
 app.post('/register', async (req, res) => {
     const { email, userName, password } = req.body;
