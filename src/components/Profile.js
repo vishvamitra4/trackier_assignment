@@ -1,8 +1,14 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import Projects from "./Projects";
 import Taskboard from "./Taskboard";
+import axios from "axios";
+import { useState } from "react";
+import {useDispatch} from "react-redux"
+import { userActions } from "../store/userSlice";
 
 function Profile() {
+    const dispatch = useDispatch();
+    const [redirect , setRedirect] = useState(false);
 
     let { subpage } = useParams();
     if (subpage == undefined) {
@@ -18,7 +24,18 @@ function Profile() {
         }
 
         return D;
-    }
+    };
+
+
+    const handleLogout = async ()=>{
+        await axios.post("http://localhost:4000/logout");
+        setRedirect(true);
+    };
+
+    if(redirect){
+        dispatch(userActions.updateUser({userName : "" , email : "" , id : ""}));
+        return <Navigate to={"/"} />
+    };
 
     return (
         <div>
@@ -34,6 +51,10 @@ function Profile() {
                     Taskboard
                 </Link>
             </nav>
+            <div className="w-full flex justify-center items-center">
+            <button onClick={handleLogout} className="w-[400px] py-2 mb-5 px-6 rounded-full bg-red-500 text-white">Logout</button>
+            </div>
+            
             {subpage === "projects" && <Projects />}
             {subpage === "tasks" && <Taskboard />}
         </div>

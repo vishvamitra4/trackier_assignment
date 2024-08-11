@@ -7,10 +7,27 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setpassword] = useState("");
 
+    // handle registration.....
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        const res = await fetch("http://localhost:4000/register", {
+            method: 'POST',
+            body: JSON.stringify({ email, userName: name, password }),
+            headers: { 'Content-Type': 'application/json' },
+        });
+        if (res.status === 200) {
+            alert("Registration Successfull");
+        } else {
+            alert("Registration Failed.");
+        };
+    };
+
+
+
     return (
         <div>
             <h1 className="font-bold text-5xl my-2 text-rgb(25 44 69) text-center">Register Yourself</h1>
-            <form className="input">
+            <form className="input" onSubmit={handleRegister}>
                 <label for="name-input">Enter Name</label>
                 <input
                     id="name-input"

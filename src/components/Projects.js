@@ -1,44 +1,72 @@
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { AiFillDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
 
 function Projects() {
-    const dummyProjects = [
-        {
-            id: 1,
-            name: "Project1",
-            description: "Some random text about that dummy project.",
-        },
-        {
-            id: 2,
-            name: "Project2",
-            description: "Some random text about that dummy project.",
-        },
-        {
-            id: 3,
-            name: "Project3",
-            description: "Some random text about that dummy project.",
-        },
-    ];
 
-    const [data, setData] = useState(dummyProjects);
+    const [data, setData] = useState([]);
     const [showInput, setShowInput] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
 
-    const addProject = () => {
-        setData([...data, { id: data.length + 1, name, description }]);
-        setName("");
-        setDescription("");
+    useEffect(() => {
+        axios.get("http://localhost:4000/fetchproject")
+            .then(({ data }) => {
+                setData(data);
+                // console.log(data);
+            })
+    }, []);
+
+    const addProject = async () => {
+        try {
+            const { data } = await axios.post("http://localhost:4000/addproject", {
+                projectName: name,
+                projectDescription: description,
+            });
+            if (data != null) {
+                alert("project added successfully!");
+                setData((prev) => {
+                    return [...prev, data];
+                });
+                setName('');
+                setDescription('');
+            }
+        } catch (e) {
+            alert("something went wrong!");
+        }
+
     };
+
+    const handleDelete = async (id) => {
+        try {
+            const { data } = await axios.delete(`http://localhost:4000/deleteproject/${id}`);
+            setData((prevData) => {
+                return prevData.filter((item) => item._id !== data._id);
+            })
+        } catch (e) {
+            alert("Something Happened Wrong!");
+        }
+    }
 
     const viewData = data.map((item) => {
         return (
-            <Link to={`/profile/projects/${item.id}`}>
-                <div key={item.id} className="bg-white p-4 rounded-lg shadow-md mb-4 hover:bg-gray-100 hover:shadow-lg transition duration-200 cursor-pointer">
-                    <h1 className="text-xl font-bold">{item.name}</h1>
-                    <h2 className="text-gray-700">{item.description}</h2>
+
+            <div className="flex flex-row justify-between bg-white p-4 rounded-lg shadow-md mb-4 hover:bg-gray-100 hover:shadow-lg transition duration-200 cursor-pointer">
+                <Link className="w-[80%]" to={`/profile/projects/${item._id}`}>
+                    <div className="flex flex-col justify-start" key={item._id}>
+                        <h1 className="text-xl font-bold">{item.projectName}</h1>
+                        <h2 className="text-gray-700">{item.projectDescription}</h2>
+                    </div>
+                </Link>
+                <div>
+                    <AiFillDelete
+                        className="text-3xl text-red-500 hover:text-4xl hover:text-red-800"
+                        onClick={() => handleDelete(item._id)}
+                    />
                 </div>
-            </Link>
+            </div >
+
         );
     });
 
